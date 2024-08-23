@@ -8,11 +8,11 @@ const router = express.Router();
 
 router.get('/', (_req, res) => {
   const patientsWithoutSsn = patients.map(({ id, name, dateOfBirth, gender, occupation }) => ({
-    id,
     name,
+    occupation,
     dateOfBirth,
     gender,
-    occupation,
+    id
   }));
   res.json(patientsWithoutSsn);
 });
@@ -31,10 +31,22 @@ router.post('/', (req, res) => {
       ...newPatientData,
       dateOfBirth: newPatientData.dateOfBirth ?? "",
       ssn: newPatientData.ssn ?? "",
+      entries: [],
     };
   
     patients.push(newPatient);
     return res.status(201).json(newPatient);
   });
-
-export default router;
+  
+  router.get('/:id', (req, res) => {
+    const id = req.params.id;
+    const patient = patients.find(p => p.id === id);
+  
+    if (!patient) {
+      return res.status(404).json({ error: 'Patient not found' });
+    }
+  
+    return res.json(patient);
+  });
+  
+  export default router;
